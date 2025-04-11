@@ -2,7 +2,12 @@ from flask import Flask, request, render_template, redirect, url_for
 import requests
 from urllib.parse import quote
 
-SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbysuJ_-IhAHQC6cU7s2o2zcNOF3pEs72D_ryKbG21fs0KhwPvkgjQjf9GEjlPtkatrG/exec'
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # Load environment variables
+
+SCRIPT_URL = os.getenv('SCRIPT_URL')
 
 app = Flask(__name__)
 
@@ -42,7 +47,7 @@ def submit():
 def get_data(name) -> dict:
     encoded_name = quote(name)
     try:
-        print(f"Request URL: {SCRIPT_URL}?name={encoded_name}")
+        print("Fetching data from Google Apps Script...")
         response = requests.get(f"{SCRIPT_URL}?name={encoded_name}")
         response.raise_for_status()  # Will raise an exception for 4xx/5xx responses
         return response.json()
