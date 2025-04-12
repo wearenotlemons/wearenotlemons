@@ -13,24 +13,13 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def index():
-    name = request.args.get('name')
-    msg = request.args.get('msg')
-    sessions = request.args.get('sessions')
-    totalHours = request.args.get('totalHours')
-
-    return render_template(
-        'index.html',
-        name=name,
-        msg=msg,
-        sessions=sessions,
-        totalHours=totalHours
-    )
+    return render_template('index.html')
 
 @app.route('/', methods=['POST'])
 def submit():
     name = request.form.get('nameInput')
     if not name:
-        return redirect(url_for('index', msg="Please enter a name."))
+        return render_template('index.html', msg="Please enter a name.")
 
     data_dict = get_data(name)
     if data_dict:
@@ -38,11 +27,11 @@ def submit():
         sessions = ", ".join(map(str, data_dict.get('sessions', [])))
         totalHours = data_dict.get('totalHours')
         if totalHours > 0:
-            return redirect(url_for('index', name=name, sessions=sessions, totalHours=totalHours))
+            return render_template('index.html', name=name, sessions=sessions, totalHours=totalHours)
         else:
-            return redirect(url_for('index', name=name, msg="You did not attend any sessions."))
+            return render_template('index.html', name=name, msg="You did not attend any sessions.")
     else:
-        return redirect(url_for('index', msg="Failed to retrieve data. Please try again."))
+        return render_template('index.html', msg="Failed to retrieve data. Please try again.")
 
 def get_data(name) -> dict:
     encoded_name = quote(name)
@@ -58,4 +47,5 @@ def get_data(name) -> dict:
         print("❌ Error decoding JSON:", ve)
         return None
 
-app.run()
+port = int(os.environ.get("PORT", 5000))
+app.run(host="0.0.0.0", port=port)
